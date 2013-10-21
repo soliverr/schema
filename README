@@ -1,0 +1,9 @@
+oradba-schema
+-------------
+
+Scripts to create ORADBA base schema for using with other oradba packages.
+
+
+Project is hosted on SourceForge: http://sourceforge.net/projects/oracledba
+
+ -- Kryazhevskikh Sergey <soliverr@gmail.com>

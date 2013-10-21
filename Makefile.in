@@ -1,0 +1,138 @@
+#
+
+SHELL           = /bin/bash
+INSTALL         = install
+top_srcdir      = @top_srcdir@
+srcdir          = @srcdir@
+VPATH           = @srcdir@
+
+# Package identification ---------------------------------------------------------------
+PACKAGE_NAME    = @PACKAGE_NAME@
+PACKAGE_TARNAME = @PACKAGE_TARNAME@
+PACKAGE_VERSION = @PACKAGE_VERSION@
+PACKAGE_STRING  = @PACKAGE_STRING@
+
+# Base directories ---------------------------------------------------------------------
+prefix          = @prefix@
+exec_prefix     = @exec_prefix@
+sbindir         = @sbindir@
+libdir          = @libdir@
+libexecdir      = @libexecdir@
+sysconfdir      = @sysconfdir@
+confdir         = @confdir@
+localstatedir   = @localstatedir@
+datarootdir     = @datarootdir@
+datadir         = @datadir@
+logdir          = @logdir@
+docdir          = @docdir@
+
+# Destination dir
+DESTDIR         =
+
+# Executable name
+run_prg         = oradba-schema
+
+.PHONY: expand
+.PHONY: install install-dirs install-base-dirs install-docs install-files install-config install-sql install-sh clean distclean mostlyclean 
+
+install: expand install-dirs install-docs install-files
+
+expand: _pkg-functions
+	chmod +x $(srcdir)/build_expand.sh
+	$(srcdir)/build_expand.sh _pkg-functions
+
+install-dirs: install-base-dirs
+	#$(INSTALL) --directory --mode 755 $(DESTDIR)$(datadir)/tbsp
+	$(INSTALL) --directory --mode 755 $(DESTDIR)$(datadir)/users
+	#$(INSTALL) --directory --mode 755 $(DESTDIR)$(datadir)/triggers
+	#$(INSTALL) --directory --mode 755 $(DESTDIR)$(datadir)/procedures
+	#$(INSTALL) --directory --mode 755 $(DESTDIR)$(datadir)/directories
+
+install-base-dirs:
+	$(INSTALL) --directory --mode 755 $(DESTDIR)$(confdir)
+	$(INSTALL) --directory --mode 755 $(DESTDIR)$(logdir)
+	$(INSTALL) --directory --mode 755 $(DESTDIR)$(libexecdir)
+
+install-docs:
+	$(INSTALL) --directory --mode 755 $(DESTDIR)$(docdir)
+	if [ -r README ] ; then $(INSTALL) --mode 0644 README $(DESTDIR)$(docdir) ; fi
+
+install-files: install-config install-sql install-sh
+	ln -s ./$(run_prg) $(DESTDIR)$(sbindir)/$(run_prg)_drop_tbsps
+	ln -s ./$(run_prg) $(DESTDIR)$(sbindir)/$(run_prg)_drop_users
+	ln -s ./$(run_prg) $(DESTDIR)$(sbindir)/$(run_prg)_drop_roles
+	ln -s ./$(run_prg) $(DESTDIR)$(sbindir)/$(run_prg)_drop_profiles
+	ln -s ./$(run_prg) $(DESTDIR)$(sbindir)/$(run_prg)_drop_triggers
+	ln -s ./$(run_prg) $(DESTDIR)$(sbindir)/$(run_prg)_drop_directories
+	ln -s ./$(run_prg) $(DESTDIR)$(sbindir)/$(run_prg)_drop_procedures
+	ln -s ./$(run_prg) $(DESTDIR)$(sbindir)/$(run_prg)_drop_roles_users
+	ln -s ./$(run_prg) $(DESTDIR)$(sbindir)/$(run_prg)_drop_all
+	ln -s ./$(run_prg) $(DESTDIR)$(sbindir)/$(run_prg)_create_tbsps
+	ln -s ./$(run_prg) $(DESTDIR)$(sbindir)/$(run_prg)_create_users
+	ln -s ./$(run_prg) $(DESTDIR)$(sbindir)/$(run_prg)_create_roles
+	ln -s ./$(run_prg) $(DESTDIR)$(sbindir)/$(run_prg)_create_profiles
+	ln -s ./$(run_prg) $(DESTDIR)$(sbindir)/$(run_prg)_create_triggers
+	ln -s ./$(run_prg) $(DESTDIR)$(sbindir)/$(run_prg)_create_directories
+	ln -s ./$(run_prg) $(DESTDIR)$(sbindir)/$(run_prg)_create_procedures
+	ln -s ./$(run_prg) $(DESTDIR)$(sbindir)/$(run_prg)_create_all
+	ln -s ./$(run_prg) $(DESTDIR)$(sbindir)/$(run_prg)_create_roles_users
+
+install-config:
+	$(INSTALL) --mode 664 config.vars $(DESTDIR)$(confdir)/$(PACKAGE_NAME).conf
+	$(INSTALL) --mode 664 define.sql  $(DESTDIR)$(confdir)/$(PACKAGE_NAME)-define.sql
+
+install-sql:
+	for f in `ls dirs_*.sql` ; do \
+	  $(INSTALL) -D --mode 644 $$f $(DESTDIR)$(confdir) ; \
+	done
+	for f in `ls *.sql | grep -v 'define.\?\.sql'` ; do \
+	  $(INSTALL) --mode 644 $$f $(DESTDIR)$(datadir) ; \
+	done
+	for f in `ls tbsp/*.sql` ; do \
+	  $(INSTALL) --mode 644 $$f $(DESTDIR)$(datadir)/tbsp ; \
+	done
+	for f in `ls users/*.sql` ; do \
+	  $(INSTALL) --mode 644 $$f $(DESTDIR)$(datadir)/users ; \
+	done
+	for f in `ls triggers/*.sql` ; do \
+	  $(INSTALL) --mode 644 $$f $(DESTDIR)$(datadir)/triggers ; \
+	done
+	for f in `ls procedures/*.sql` ; do \
+	  $(INSTALL) --mode 644 $$f $(DESTDIR)$(datadir)/procedures ; \
+	done
+	for f in `ls directories/*.sql` ; do \
+	  $(INSTALL) --mode 644 $$f $(DESTDIR)$(datadir)/directories ; \
+	done
+
+install-sh:
+	for f in `ls -1 *.sh | grep -v '.*build.sh\|run.sh\|build_expand.sh'` ; do \
+	  $(INSTALL) --mode 755 $$f $(DESTDIR)$(libexecdir) ; \
+	done
+	$(INSTALL) -D --mode 755 run.sh $(DESTDIR)/$(sbindir)/$(run_prg)
+
+clean:
+	-rm -f run.sh dirs_billing.sql _pkg-functions build_expand.sh
+	-rm -f create_billing.sh create_parser.sh create_raddb.sh
+	-rm -f Makefile config.h config.status config.cache config.log
+
+distclean: clean
+	-rm -rf autom4te.cache
+	-find . -type f -iwholename '*~' -exec rm -fv {} ';'
+	if [ -d test ] ; then rm -rf test; fi
+	if [ -d inst ] ; then rm -rf inst; fi
+
+mostlyclean: distclean
+
+maintainer-clean: distclean
+	fakeroot ./debian/rules clean || true
+
+# automatic re-running of configure if the configure.ac file has changed
+${srcdir}/configure: configure.ac
+	cd ${srcdir} && autoconf
+
+Makefile: Makefile.in config.status
+	./config.status
+
+config.status: configure
+	./config.status --recheck
+

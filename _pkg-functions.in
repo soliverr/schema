@@ -1,0 +1,108 @@
+# pkgs-functions
+#
+#  Actions of packet.
+#
+#    Global `DISTR', `ACTION' environment variables can be set
+#     or
+#    Two parameters `distr' `action' should be supplied for every procedures
+#
+#
+
+# Идентификация пакета -----------------------------------------------------------------
+PACKAGE_NAME="@PACKAGE_NAME@"
+PACKAGE_TARNAME="@PACKAGE_TARNAME@"
+PACKAGE_VERSION="@PACKAGE_VERSION@"
+PACKAGE_STRING="@PACKAGE_STRING@"
+
+# Базовые каталоги установки системы RIAS ----------------------------------------------
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+sbindir=@sbindir@
+libdir=@libdir@
+libexecdir=@libexecdir@
+sysconfdir=@sysconfdir@
+confdir=@confdir@
+localstatedir=@localstatedir@
+datarootdir=@datarootdir@
+datadir=@datadir@
+logdir=@logdir@
+docdir=@docdir@
+
+schema_config=$confdir/schema_define.sql
+
+_write_schema_config() {
+
+  local incf=`echo $PACKAGE_NAME | tr -d '-'`
+
+  if ! grep -q -s "^-- Added by $PACKAGE_NAME package --" $schema_config ; then
+    sed --in-place \
+"/-- Add additional schemas definitions here --/a\\
+-- Added by $PACKAGE_NAME package --\\
+@@${incf}_define.sql\\
+-- $PACKAGE_NAME package --\\
+" $schema_config
+  fi
+}
+
+_unwrite_schema_config() {
+  bs=`grep --line-number "^-- Added by $PACKAGE_NAME package --" $schema_config | cut -d ':' -f 1 || echo 0`
+  be=`grep --line-number "^-- $PACKAGE_NAME package --" $schema_config | cut -d ':' -f 1 || echo 0`
+  if [ -z "$bs" ] ; then
+     bs=0
+  fi
+  if [ -z "$be" ] ; then
+     be=0
+  fi
+  if [ $bs -gt 0 -a $be -gt $bs ] ; then
+     sed --in-place "$bs,$be d" $schema_config
+  fi
+}
+
+
+postinst() {
+    local distr=${1:-$DISTR}
+    local action=${2:-$ACTION}
+    local version=$3
+
+    [ "$action" = "configure" -a -n "$version" ] && action="upgrade"
+
+    case "$action" in
+        configure)
+            if [ "$PACKAGE_NAME" != "schema" ] ; then
+                _write_schema_config
+            fi
+        ;;
+        upgrade)
+        ;;
+        abort-upgrade|abort-remove|abort-deconfigure)
+        ;;
+        null)
+            exit 0
+        ;;
+        *)
+            echo "postinst called with unknown argument \`$@'" >&2
+            exit 1
+        ;;
+    esac
+}
+
+postrm() {
+    local distr=${1:-$DISTR}
+    local action=${2:-$ACTION}
+
+    case "$action" in
+        remove)
+        ;;
+        purge)
+           if [ "$PACKAGE_NAME" != "schema" ] ; then
+               _unwrite_schema_config
+           fi
+        ;;
+        upgrade|failed-upgrade|abort-install|abort-upgrade|disappear)
+        ;;
+        *)
+            echo "postrm called with unknown arguments \`$@'" >&2
+            exit 1
+        ;;
+    esac
+}
