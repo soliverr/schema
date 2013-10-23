@@ -5,7 +5,7 @@
 -- DROP ROLE &&L_ROLE_NAME;
 --
 
-define L_ROLE_NAME = RIAS_MONITORING
+define L_ROLE_NAME = ORADBA_MONITORING
 
 declare
   l$cnt integer := 0;

@@ -7,11 +7,6 @@ source $liblsb/orabase-functions
 
 sqlfile=${SQL_FILE:-cat}
 
-cat << __EOF__ | $sqlfile
-set time on
-set verify off
-
-__EOF__
 
 if [ $# -gt 0  ]; then
   while true ; do
@@ -28,6 +23,18 @@ if [ "$NAMES" = "all" -o -z "$NAMES" ] ; then
          xargs -0 -L 1 basename 2>/dev/null | sed -ne 's/^tbsp_\(.\+\)\.sql/\1/gp'`
 fi
 
+cat << __EOF__ | $sqlfile
+--
+-- drop tablespaces for $NAMES
+--
+set time on
+set verify off
+
+@$confdir/$PACKAGE_NAME-define.sql
+
+__EOF__
+
+# Drop tablespaces
 for tbspf in $NAMES ; do
  orabase_info "Droping tablespace $tbspf"
  tbspf="$datadir/tbsp/tbsp_$tbspf.sql"

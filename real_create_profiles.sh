@@ -7,11 +7,6 @@ source $liblsb/orabase-functions
 
 sqlfile=${SQL_FILE:-cat}
 
-cat << __EOF__ | $sqlfile
-set time on
-set verify off
-
-__EOF__
 
 if [ $# -gt 0  ]; then
   while true ; do
@@ -27,6 +22,17 @@ if [ "$NAMES" = "all" -o -z "$NAMES" ] ; then
   NAMES=`find $datadir/users/ -type f -name 'profile_*.sql' -print0 |
          xargs -0 -L 1 basename 2>/dev/null | sed -ne 's/^profile_\(.\+\)\.sql/\1/gp'`
 fi
+
+cat << __EOF__ | $sqlfile
+--
+-- create profiles for $NAMES
+--
+set time on
+set verify off
+
+@$confdir/$PACKAGE_NAME-define.sql
+
+__EOF__
 
 # Create profiles
 for p in $NAMES ; do

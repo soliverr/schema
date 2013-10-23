@@ -21,8 +21,13 @@ if [ $# -gt 0  ]; then
 fi
 
 cat << __EOF__ | $sqlfile
+--
+-- Drop triggers for $NAMES
+--
 set time on
 set verify off
+
+@$confdir/$PACKAGE_NAME-define.sql
 
 __EOF__
 
@@ -30,6 +35,7 @@ if [ $# -gt 0  ]; then
  NAMES="$@"
 fi
 
+# Drop triggers
 #FIXME: Trigger names shoud be get from script
 #[ -z "$nosystemtriggers" ] && NAMES="system.orabase_set_local_time_zone $NAMES"
 for t in $NAMES ; do

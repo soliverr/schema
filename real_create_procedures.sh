@@ -24,9 +24,11 @@ cat << __EOF__ | $sqlfile
 set time on
 set verify off
 
+@$confdir/$PACKAGE_NAME-define.sql
+
 __EOF__
 
-# Создать процедуры
+# Create procedures
 for proc in $NAMES ; do
   orabase_info "Creating procedure $t"
   t="$datadir/procedures/$proc.sql"

@@ -1,0 +1,6 @@
+#
+# Directory to keep created SQL scripts
+#
+# Comment this line if you want write DDLs to console only
+#
+LOGDIR=@logdir@

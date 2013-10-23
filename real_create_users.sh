@@ -21,8 +21,13 @@ if [ $# -gt 0  ]; then
 fi
 
 cat << __EOF__ | $sqlfile
+--
+-- create users for $NAMES
+--
 set time on
 set verify off
+
+@$confdir/$PACKAGE_NAME-define.sql
 
 __EOF__
 
@@ -56,7 +61,7 @@ for user in $NAMES ; do
   echo "-- @@$u" | $sqlfile
   cat "$u" | $sqlfile
   echo "-- Grants by ROLE" | $sqlfile
-  $pkglibexecdir/grant_role_privs.sh "$u" | $sqlfile
+  $libexecdir/grant_role_privs.sh "$u" | $sqlfile
   trig="$datadir/triggers/$user.sql"
   if [ -r "$trig" ] ; then
       orabase_info "Creating user's trigger for $user"

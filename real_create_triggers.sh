@@ -27,6 +27,8 @@ cat << __EOF__ | $sqlfile
 set time on
 set verify off
 
+@$confdir/$PACKAGE_NAME-define.sql
+
 __EOF__
 
 # Create triggers

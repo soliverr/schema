@@ -7,11 +7,6 @@ source $liblsb/orabase-functions
 
 sqlfile=${SQL_FILE:-cat}
 
-cat << __EOF__ | $sqlfile
-set time on
-set verify off
-
-__EOF__
 
 if [ $# -gt 0  ]; then
   while true ; do
@@ -28,7 +23,18 @@ if [ "$NAMES" = "all" -o -z "$NAMES" ] ; then
          xargs -0 -L 1 basename 2>/dev/null | sed -ne 's/^role_\(.\+\)\.sql/\1/gp'`
 fi
 
-# Crete roles
+cat << __EOF__ | $sqlfile
+--
+-- create roles for $NAMES
+--
+set time on
+set verify off
+
+@$confdir/$PACKAGE_NAME-define.sql
+
+__EOF__
+
+# Create roles
 for role in $NAMES ; do
   orabase_info "Creating role $role"
   role="$datadir/users/role_$role.sql"

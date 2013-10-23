@@ -3,7 +3,10 @@
 # Main run script
 #
 
+source @liblsb@/orabase-functions 2>&- || { echo "File @liblsb@/orabase-functions is not exists" >&2 ; exit 1; }
+
 # Package identification ---------------------------------------------------------------
+SECTION="@SECTION@"
 PACKAGE_NAME="@PACKAGE_NAME@"
 PACKAGE_VERSION="@PACKAGE_VERSION@"
 PACKAGE_STRING="@PACKAGE_STRING@"
@@ -23,17 +26,17 @@ logdir=@logdir@
 config=$confdir/${PACKAGE_NAME}.conf
 
 # Operational variables ----------------------------------------------------------------
-exe_name=$0
-EXE_NAME=`basename $exe_name`
+EXE_NAME=`basename $0`
 # Names to process
 NAMES=
 # Additional arguments
 addargs=
+# Logdir
+LOGDIR=
+#
+SQL_FILE_NAME=
 
 # Default values -----------------------------------------------------------------------
-# FIXME: through command line???
-DEFAULT_SQL_FILE=
-
 DEFAULT_NAMES='all'
 
 # Read config file ---------------------------------------------------------------------
@@ -41,8 +44,8 @@ DEFAULT_NAMES='all'
 
 # Global variables ---------------------------------------------------------------------
 #
-export lsbdir libdir datadir sysconfdir confdir logdir prefix config
-export SQL_FILE EXE_NAME NAMES
+export liblsb libdir libexecdir datadir sysconfdir confdir logdir prefix config
+export SQL_FILE EXE_NAME NAMES PACKAGE_NAME
 
 usage() {
   cat << __EOFF__
@@ -60,7 +63,7 @@ __EOFF__
 # Main programm ========================================================================
 
 TEMP=`getopt -o h --long help,no-public-grants,no-system-triggers \
-             -n "$exe_name" -- "$@"`
+             -n "$EXE_NAME" -- "$@"`
 
 eval set -- "$TEMP"
 
@@ -69,7 +72,7 @@ while true ; do
         -h|--help) usage; exit 0 ;;
         --no-public-grants|--no-system-triggers) addargs="$1"; shift ;;
         --) shift ; break ;;
-        *) oradba_error_exit "Internal error!" ;;
+        *) orabase_error_exit "Internal error!" ;;
     esac
 done
 
@@ -78,15 +81,20 @@ NAMES="$@"
 # Set default values
 NAMES=${NAMES-$DEFAULT_NAMES}
 
-sqlfile=${SQL_FILE:-$DEFAULT_SQL_FILE}
+#
+# Set output file
+#
+if [ -n "$LOGDIR" ] ; then
+    SQL_FILE_NAME="$LOGDIR/$EXE_NAME.`date +%s`"
+fi
 
-if [ -n "$sqlfile" ] ; then
-  rm -f $sqlfile
-  sqlfile="tee --append $sqlfile"
+if [ -n "$SQL_FILE" ] ; then
+  sqlfile="tee --append $SQL_FILE_NAME"
 else
   sqlfile="cat"
 fi
-SQL_FILE=$sql_file
+
+SQL_FILE="$sqlfile"
 
 cat << __EOF__ | $sqlfile
 set time on
@@ -95,42 +103,45 @@ set verify off
 __EOF__
 
 
-case "$exe_name" in
-    *dba_schema_drop_roles_users )   $libexecdir/real_drop_roles.sh
-                                     $libexecdir/real_drop_users.sh $addargs             ;;
-    *dba_schema_drop_roles)          $libexecdir/real_drop_roles.sh "$NAMES"             ;;
-    *dba_schema_drop_users)          $libexecdir/real_drop_users.sh $addargs "$NAMES"    ;;
-    *dba_schema_drop_tbsps)          $libexecdir/real_drop_tbsps.sh "$NAMES"             ;;
-    *dba_schema_drop_profiles)       $libexecdir/real_drop_profiles.sh "$NAMES"          ;;
-    *dba_schema_drop_procedures)     $libexecdir/real_drop_procedures.sh "$NAMES"        ;;
-    *dba_schema_drop_triggers)       $libexecdir/real_drop_triggers.sh $addargs "$NAMES" ;;
-    *dba_schema_drop_directories)    $libexecdir/real_drop_directories.sh "$NAMES"       ;;
-    *dba_schema_drop_all)            $libexecdir/real_drop_roles.sh
-                                     $libexecdir/real_drop_profiles.sh
-                                     $libexecdir/real_drop_triggers.sh $addargs
-                                     $libexecdir/real_drop_directories.sh
-                                     $libexecdir/real_drop_users.sh $addargs
-                                     $libexecdir/real_drop_tbsps.sh                        ;;
-    *dba_schema_create_roles_users ) $libexecdir/real_create_roles.sh
-                                     $libexecdir/real_create_users.sh $addargs             ;;
-    *dba_schema_create_users )       $libexecdir/real_create_users.sh $addargs "$NAMES"    ;;
-    *dba_schema_create_roles)        $libexecdir/real_create_roles.sh "$NAMES"             ;;
-    *dba_schema_create_tbsps)        $libexecdir/real_create_tbsps.sh "$NAMES"             ;;
-    *dba_schema_create_profiles)     $libexecdir/real_create_profiles.sh "$NAMES"          ;;
-    *dba_schema_create_procedures)   $libexecdir/real_create_procedures.sh "$NAMES"        ;;
-    *dba_schema_create_triggers)     $libexecdir/real_create_triggers.sh $addargs "$NAMES" ;;
-    *dba_schema_create_directories)  $libexecdir/real_create_directories.sh "$NAMES"       ;;
-    *dba_schema_create_all)          $libexecdir/real_create_tbsps.sh
-                                     $libexecdir/real_create_roles.sh
-                                     $libexecdir/real_create_profiles.sh
-                                     $libexecdir/real_create_procedures.sh
-                                     $libexecdir/real_create_triggers.shm $addargs
-                                     $libexecdir/real_create_directories.sh
-                                     $libexecdir/real_create_users.sh $addargs             ;;
+case "$EXE_NAME" in
+    *$SECTION_$PACKAGE_NAME-drop-roles-users )   $libexecdir/real_drop_roles.sh
+                                                 $libexecdir/real_drop_users.sh $addargs               ;;
+    *$SECTION_$PACKAGE_NAME-drop-roles)          $libexecdir/real_drop_roles.sh "$NAMES"               ;;
+    *$SECTION_$PACKAGE_NAME-drop-users)          $libexecdir/real_drop_users.sh $addargs "$NAMES"      ;;
+    *$SECTION_$PACKAGE_NAME-drop-tbsps)          $libexecdir/real_drop_tbsps.sh "$NAMES"               ;;
+    *$SECTION_$PACKAGE_NAME-drop-profiles)       $libexecdir/real_drop_profiles.sh "$NAMES"            ;;
+    *$SECTION_$PACKAGE_NAME-drop-procedures)     $libexecdir/real_drop_procedures.sh "$NAMES"          ;;
+    *$SECTION_$PACKAGE_NAME-drop-triggers)       $libexecdir/real_drop_triggers.sh $addargs "$NAMES"   ;;
+    *$SECTION_$PACKAGE_NAME-drop-directories)    $libexecdir/real_drop_directories.sh "$NAMES"         ;;
+    *$SECTION_$PACKAGE_NAME-drop-all)            $libexecdir/real_drop_roles.sh
+                                                 $libexecdir/real_drop_profiles.sh
+                                                 $libexecdir/real_drop_triggers.sh $addargs
+                                                 $libexecdir/real_drop_directories.sh
+                                                 $libexecdir/real_drop_users.sh $addargs
+                                                 $libexecdir/real_drop_tbsps.sh                        ;;
+    *$SECTION_$PACKAGE_NAME-create-roles-users ) $libexecdir/real_create_roles.sh
+                                                 $libexecdir/real_create_users.sh $addargs             ;;
+    *$SECTION_$PACKAGE_NAME-create-users )       $libexecdir/real_create_users.sh $addargs "$NAMES"    ;;
+    *$SECTION_$PACKAGE_NAME-create-roles)        $libexecdir/real_create_roles.sh "$NAMES"             ;;
+    *$SECTION_$PACKAGE_NAME-create-tbsps)        $libexecdir/real_create_tbsps.sh "$NAMES"             ;;
+    *$SECTION_$PACKAGE_NAME-create-profiles)     $libexecdir/real_create_profiles.sh "$NAMES"          ;;
+    *$SECTION_$PACKAGE_NAME-create-procedures)   $libexecdir/real_create_procedures.sh "$NAMES"        ;;
+    *$SECTION_$PACKAGE_NAME-create-triggers)     $libexecdir/real_create_triggers.sh $addargs "$NAMES" ;;
+    *$SECTION_$PACKAGE_NAME-create-directories)  $libexecdir/real_create_directories.sh "$NAMES"       ;;
+    *$SECTION_$PACKAGE_NAME-create-all)          $libexecdir/real_create_tbsps.sh
+                                                 $libexecdir/real_create_roles.sh
+                                                 $libexecdir/real_create_profiles.sh
+                                                 $libexecdir/real_create_procedures.sh
+                                                 $libexecdir/real_create_triggers.shm $addargs
+                                                 $libexecdir/real_create_directories.sh
+                                                 $libexecdir/real_create_users.sh $addargs             ;;
 esac
 
 echo | $sqlfile
 echo "exit;" | $sqlfile
 
-[ -f "$SQL_FILE" ] && rm -f $SQL_FILE
+if [ -f "$SQL_FILE_NAME" ] ; then
+    orabase_info "DDLs are saved in file $SQL_FILE_NAME"
+fi
 
+exit 0

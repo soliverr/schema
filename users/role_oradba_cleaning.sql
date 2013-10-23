@@ -5,7 +5,7 @@
 -- DROP ROLE &&L_ROLE_NAME;
 --
 
-define L_ROLE_NAME = RIAS_CLEANING
+define L_ROLE_NAME = ORADBA_CLEANING
 
 declare
   l$cnt integer := 0;

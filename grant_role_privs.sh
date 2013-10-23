@@ -2,7 +2,7 @@
 #
 # Create objects privilege from role privileges.
 #
-# Copyright (c) 2008, Kryazhevskikh Sergey, <soliverr@gmail.com>
+# Copyright (c) 2008, 2013 Kryazhevskikh Sergey, <soliverr@gmail.com>
 #
 
 list_grants() {
@@ -10,7 +10,7 @@ list_grants() {
 
   #echo "$1 $2"
 
-  sed -ne 's#^--.*PL/SQL.*grant[[:space:][:cntrl:]]\+\(RIAS_\+\)#\1#ip' $1 | \
+  sed -ne 's#^--.*PL/SQL.*grant[[:space:][:cntrl:]]\+\(ORADBA_\+\)#\1#ip' $1 | \
     sort | uniq | tr [A-Z] [a-z] | while read role
   do
       #echo $role
