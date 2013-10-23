@@ -21,9 +21,13 @@ if [ $# -gt 0  ]; then
 fi
 
 cat << __EOF__ | $sqlfile
---
--- Drop triggers for $NAMES
---
+/* *************************************
+Drop triggers:
+
+$NAMES
+
+**************************************** */
+
 set time on
 set verify off
 

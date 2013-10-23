@@ -25,9 +25,13 @@ if [ "$NAMES" = "all" -o -z "$NAMES" ] ; then
 fi
 
 cat << __EOF__ | $sqlfile
---
--- drop directories for $NAMES
---
+/* *************************************
+Drop directories:
+
+$NAMES
+
+**************************************** */
+
 set time on
 set verify off
 

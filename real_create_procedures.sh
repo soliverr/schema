@@ -18,9 +18,13 @@ if [ $# -gt 0  ]; then
 fi
 
 cat << __EOF__ | $sqlfile
---
--- create system procedures for $NAMES
---
+/* *************************************
+Create procedures:
+
+$NAMES
+
+**************************************** */
+
 set time on
 set verify off
 

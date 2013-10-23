@@ -24,9 +24,13 @@ if [ "$NAMES" = "all" -o -z "$NAMES" ] ; then
 fi
 
 cat << __EOF__ | $sqlfile
---
--- create roles for $NAMES
---
+/* *************************************
+Create roles:
+
+$NAMES
+
+**************************************** */
+
 set time on
 set verify off
 

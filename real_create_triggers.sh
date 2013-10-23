@@ -21,9 +21,13 @@ if [ $# -gt 0  ]; then
 fi
 
 cat << __EOF__ | $sqlfile
---
--- create system triggers for $NAMES
---
+/* *************************************
+Create triggers:
+
+$NAMES
+
+**************************************** */
+
 set time on
 set verify off
 

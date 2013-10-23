@@ -24,9 +24,13 @@ if [ "$NAMES" = "all" -o -z "$NAMES" ] ; then
 fi
 
 cat << __EOF__ | $sqlfile
---
--- drop profiles for $NAMES
---
+/* *************************************
+Drop profiles:
+
+$NAMES
+
+**************************************** */
+
 set time on
 set verify off
 

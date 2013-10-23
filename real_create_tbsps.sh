@@ -30,9 +30,13 @@ if [ "$NAMES" = "all" -o -z "$NAMES" ] ; then
 fi
 
 cat << __EOF__ | $sqlfile
---
--- create tablespace for $NAMES
---
+/* *************************************
+Create tablespaces:
+
+$NAMES
+
+**************************************** */
+
 set time on
 set verify off
 

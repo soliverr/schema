@@ -20,17 +20,6 @@ if [ $# -gt 0  ]; then
     NAMES="$@"
 fi
 
-cat << __EOF__ | $sqlfile
---
--- create users for $NAMES
---
-set time on
-set verify off
-
-@$confdir/$PACKAGE_NAME-define.sql
-
-__EOF__
-
 # Grant public privileges
 if [ -z "$nopublicgrants" ] ; then
     orabase_info "Grant public rights"
@@ -48,6 +37,21 @@ if [ "$NAMES" = "all" -o -z "$NAMES" ] ; then
   NAMES=`find $datadir/users/ -type f -name 'user_*.sql' -print0 |
          xargs -0 -L 1 basename 2>/dev/null | sed -ne 's/^user_\(.\+\)\.sql/\1/gp'`
 fi
+
+cat << __EOF__ | $sqlfile
+/* *************************************
+Create users:
+
+$NAMES
+
+**************************************** */
+
+set time on
+set verify off
+
+@$confdir/$PACKAGE_NAME-define.sql
+
+__EOF__
 
 # Create users/schemas
 for user in $NAMES ; do

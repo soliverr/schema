@@ -24,9 +24,13 @@ if [ "$NAMES" = "all" -o -z "$NAMES" ] ; then
 fi
 
 cat << __EOF__ | $sqlfile
---
--- drop tablespaces for $NAMES
---
+/* *************************************
+Drop tablespaces:
+
+$NAMES
+
+**************************************** */
+
 set time on
 set verify off
 

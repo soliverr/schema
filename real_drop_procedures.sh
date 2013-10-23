@@ -24,9 +24,13 @@ fi
 #fi
 
 cat << __EOF__ | $sqlfile
---
--- drop procedures for $NAMES
---
+/* *************************************
+Drop procedures:
+
+$NAMES
+
+**************************************** */
+
 set time on
 set verify off
 
