@@ -88,7 +88,7 @@ if [ -n "$LOGDIR" ] ; then
     SQL_FILE_NAME="$LOGDIR/$EXE_NAME.`date +%s`"
 fi
 
-if [ -n "$SQL_FILE" ] ; then
+if [ -n "$SQL_FILE_NAME" ] ; then
   sqlfile="tee --append $SQL_FILE_NAME"
 else
   sqlfile="cat"
