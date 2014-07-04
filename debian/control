@@ -2,7 +2,7 @@ Source: oradba-schema
 Section: utils
 Priority: required
 Maintainer: Kryazhevskikh Sergey, <soliverr@gmail.com>
-Build-Depends: debhelper (>= 5), oracle-client
+Build-Depends: debhelper (>= 5)
 Standards-Version: 3.7.2
 
 Package: oradba-schema
