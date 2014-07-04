@@ -1,0 +1,8 @@
+oradba-schema
+=============
+
+This package not initialized schemas in Oracle RDBMS automatically.
+
+See README file for details.
+
+ -- Kryazhevskikh Sergey <soliverr@gmail.com>

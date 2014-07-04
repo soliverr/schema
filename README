@@ -3,7 +3,8 @@ oradba-schema
 
 Scripts to create ORADBA base schema for using with other oradba packages.
 
+Project is hosted on GitHub: https://github.com/soliverr/schema
+Source mirror on  SourceForge: http://sourceforge.net/projects/oracledba
 
-Project is hosted on SourceForge: http://sourceforge.net/projects/oracledba
 
  -- Kryazhevskikh Sergey <soliverr@gmail.com>

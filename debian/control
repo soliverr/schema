@@ -1,0 +1,14 @@
+Source: oradba-schema
+Section: utils
+Priority: required
+Maintainer: Kryazhevskikh Sergey, <soliverr@gmail.com>
+Build-Depends: debhelper (>= 5), oracle-client
+Standards-Version: 3.7.2
+
+Package: oradba-schema
+Architecture: all
+Depends: oracle-client, oracle-base
+Description: Scripts to initialize ORADBA schema in RDBMS.
+ This package contains scrips to create ORADBA database users that 
+ used in other `oracle-dba' packages.
+ .
