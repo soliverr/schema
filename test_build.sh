@@ -16,7 +16,7 @@ destdir=inst
 
 rm -rf $destdir 2>&-
 
-./configure --with-confdir=/etc/oracle/oradba
+./configure
 
 make install DESTDIR=$destdir || exit 1
 
